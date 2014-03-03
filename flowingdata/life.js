@@ -28,9 +28,11 @@ d3.text('country-regions.csv', 'text/csv', function(text) {
 
 var startEnd = {},
     countryCodes = {};
+
 d3.text('life-expectancy-cleaned-all.csv', 'text/csv', function(text) {
     // read each row of the file
     var countries = d3.csv.parseRows(text);
+    var id2values = d3.map();
 
     // first line contain the header, get the years
     var years = countries[0].slice(valuesFromColIdx);
@@ -43,7 +45,7 @@ d3.text('life-expectancy-cleaned-all.csv', 'text/csv', function(text) {
         var values = countries[i].slice(valuesFromColIdx, countries[i.length-1]);
         var currData = [];
         countryCodes[countries[i][1]] = countries[i][0];
-        
+
         var started = false;
         for (j=0; j < values.length; j++) {
             if (values[j] != '') {
@@ -58,6 +60,7 @@ d3.text('life-expectancy-cleaned-all.csv', 'text/csv', function(text) {
                 }  
             }
         }
+        id2values.set(countries[i][1], currData);
         
         var y = d3.scale.linear().domain([maxY, minY]).range([0 + margin, h - margin]),
             x = d3.scale.linear().domain([startYear, endYear]).range([0 + margin -5, w]);
