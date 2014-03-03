@@ -13,14 +13,14 @@ body {
   shape-rendering: crispEdges;
 }
 
-.x.axis path {
-  display: none;
-}
-
-.line {
+path {
+    stroke: #e2e2e2;
+    stroke-width: 0.5;
   fill: none;
-  stroke: lightgrey;
-  stroke-width: 0.50px;
+}
+path.current, path.highlight.current {
+    stroke: #000;
+    stroke-width: 2.7;
 }
 
 </style>
@@ -29,11 +29,8 @@ body {
 <script>
 
 var margin = {top: 20, right: 80, bottom: 30, left: 50},
-    width = 740 - margin.left - margin.right,
-    height = 450 - margin.top - margin.bottom,
-    valuesFromColIdx = 2,
-    minY = 15,
-    maxY = 85;
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
 
 var parseDate = d3.time.format("%Y").parse;
 
@@ -53,8 +50,8 @@ var yAxis = d3.svg.axis()
 
 var line = d3.svg.line()
     .interpolate("basis")
-    .x(function(d) { return x(d.date); })
-    .y(function(d) { return y(d.temperature); });
+    .x(function(d) { return x(d.t); })
+    .y(function(d) { return y(d.value); });
 
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -62,45 +59,40 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-var dataset = {};
-d3.csv("data.csv", function(error, data) {
-  // date = d3.keys(data[0]).filter(function(key) { return key !== "Country Code" && key !== "Country Area"; });
-  // date.forEach(function(d) { parseDate (d) });
-
-  // data.forEach(function(d) {
-  //   d.date = parseDate(d.date);
-  // });
-
-  // var tSeries = tSeriesNames.map(function(name) {
-  //   return {
-  //     name: name,
-  //     values: data.map(function(d) {
-  //       return {date: d.date, temperature: +d[name]};
-  //     })
-  //   };
-  // });
 
 
-  dataset = d3.nest()
-    .key(function(d) { return d['Country Code']})
-    .entries(data)
-    .map(function(d) {
-      var group = d.key
-      var values = d.values.map(function (dd) {
-        var date = dd.key
-        var value = 0 + dd.values
-        return {date:date, value:value}
-      })
-    });
+// Load country code to regions data and make it a hash table
+var countries2regions = d3.map();
+d3.csv('country-regions.csv', function(d) {
+  d.forEach(function(dd) {
+    countries2regions.set(dd.CountryCode, dd.RegionCode);    
+  });
+});
 
-  dataset.entries(data);
+// load timeseries data
+d3.csv("tdata.csv", function(error, data) {
+  id = d3.keys(data[0]).filter(function(key) { return key !== "date"; });
 
+  //format time
+  data.forEach(function(d) {
+    d.date = parseDate(d.date);
+  });
+
+  var tSeries = id.map(function(name) {
+    return {
+      name: name,
+      values: data.map(function(d) {
+        return {t: d.date, value: +d[name]};
+      }),
+      region: countries2regions.get(name)
+    };
+  });
 
   x.domain(d3.extent(data, function(d) { return d.date; }));
 
   y.domain([
-    d3.min(tSeries, function(c) { return d3.min(c.values, function(v) { return v.temperature; }); }),
-    d3.max(tSeries, function(c) { return d3.max(c.values, function(v) { return v.temperature; }); })
+    d3.min(tSeries, function(c) { return d3.min(c.values, function(v) { return v.value; }); }),
+    d3.max(tSeries, function(c) { return d3.max(c.values, function(v) { return v.value; }); })
   ]);
 
   svg.append("g")
@@ -110,23 +102,56 @@ d3.csv("data.csv", function(error, data) {
 
   svg.append("g")
       .attr("class", "y axis")
-      .call(yAxis)
-    .append("text")
-      .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", ".71em")
-      .style("text-anchor", "end")
-      .text("Temperature (ºF)");
+      .call(yAxis);
 
-  var tSeries = svg.selectAll(".tSeries")
+  var country = svg.selectAll(".country")
       .data(tSeries)
-    .enter().append("g")
-      .attr("class", "tSeries");
+      .enter()
+      .append("g")
+      .attr("country", function(d) {return d.name})
+      .attr("class", function(d) {return d.region});
 
-  tSeries.append("path")
-      .attr("class", "line")
-      .attr("d", function(d) { return line(d.values); });
+  country.append("path")
+      .attr("d", function(d) { return line(d.values); })
+      .on("mouseover", onmouseover)
+      .on("mouseout", onmouseout);
 
 });
+
+// display default text
+function default_blurb (d,i) {
+    d3.select("#blurb")
+        .html("<h2>World</h2> <p>The average life expectancy in the world in 2011 was 69 years.</p>");
+}
+
+function onmouseover(d, i) {
+    var currClass = d3.select(this).attr("class");
+    d3.select(this)
+        .attr("class", currClass + " current");
+    
+    var countryCode = d3.select(this).attr("country");
+    var countryVals = startEnd[countryCode];
+    var percentChange = 100 * (countryVals['endVal'] - countryVals['startVal']) / countryVals['startVal'];
+    
+    var blurb = '<h2>' + countryCodes[countryCode] + '</h2>';
+    blurb += "<p>On average: a life expectancy of " + Math.round(countryVals['startVal']) + " years in " + countryVals['startYear'] + " and " + Math.round(countryVals['endVal']) + " years in " + countryVals['endYear'] + ", ";
+    if (percentChange >= 0) {
+        blurb += "an increase of " + Math.round(percentChange) + " %."
+    } else {
+        blurb += "a decrease of " + -1 * Math.round(percentChange) + " %."
+    }
+    blurb += "</p>";
+    
+    d3.select("#blurb")
+        .html(blurb);
+}
+function onmouseout(d, i) {
+    var currClass = d3.select(this).attr("class");
+    var prevClass = currClass.substring(0, currClass.length-8);
+    d3.select(this)
+        .attr("class", prevClass);
+
+    default_blurb();
+}
 
 </script>
