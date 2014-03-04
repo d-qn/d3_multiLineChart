@@ -1,60 +1,26 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
-<style>
-
-body {
-  font: 10px sans-serif;
-}
-
-.axis path,
-.axis line {
-  fill: none;
-  stroke: #000;
-
-}
-
-.axis path,
-.axis line {
-    stroke-width: 1;
-    stroke: #000;
-    shape-rendering: crispEdges;
-}
-.xTicks, .yTicks {
-    stroke-width: 1;
-    stroke: #000;
-}
+    <title>Life Expectancy</title>
+    <link rel="stylesheet" type="text/css" href="./style.css" />
+    <script type="text/javascript" src="./d3.min.js"></script> 
 
 
-path {
-    stroke: #e2e2e2;
-    stroke-width: 1;
-  fill: none;
-}
-path.current, path.highlight.current {
-    stroke: #000;
-    stroke-width: 2.7;
-}
-
-</style>
 <body>
 
 <div id="main-wrapper">
     <div id="content">
         <h1>Life Expectancy</h1>
-        <p>People are living longer around the world, some more so than others. Select a region (as defined by World Bank) below to compare, or roll over to the graph to highlight countries. Notice major dips during wars and tragedy.</p>
+        <p>People are living longer around the world, some more so than others. Select a region (as defined by World Bank) below to compare, 
+          or roll over to the graph to highlight countries. Notice major dips during wars and tragedy.</p>
         
         <div id="filters">
-<!--             <a id="EAS">East Asia and Pacific</a>
-            <a id="SAS">South Asia</a>
-            <a id="ECS">Europe and Central Asia</a>
-            <a id="MEA">Middle East and North Africa</a>
-            <a id="SSF">Sub-Saharan Africa</a>
-            <a id="LCN">Latin America and Caribbean</a>
-            <a id="NAC">North America</a> -->
-              <input id="EAS" type="checkbox" name="region" value="EAS">
-              <label for="EAS">East Asia and Pacific</label>
-              <input id="SAS" type="radio" name="region" value="SAS">
-              <label for="SAS">South Asia</label>
+              <label for="EAS">East Asia and Pacific</label><input id="EAS" type="radio" name="region" value="EAS">
+              <label for="SAS">South Asia</label><input id="SAS" type="radio" name="region" value="SAS">
+              <label for="ECS">Europe and Central Asia</label><input id="ECS" type="radio" name="region" value="ECS">
+              <label for="MEA">Middle East and North Africa</label><input id="MEA" type="radio" name="region" value="MEA">
+              <label for="SSF">Sub-Saharan Africa</label><input id="SSF" type="radio" name="region" value="SSF">
+              <label for="LCN">Latin America and Caribbean</label><input id="LCN" type="radio" name="region" value="LCN">
+              <label for="NAC">North America</label><input id="NAC" type="radio" name="region" value="NAC">
         </div><!-- @end #filters -->
 
         <div id="blurb">
@@ -66,145 +32,8 @@ path.current, path.highlight.current {
     </div><!-- @end content -->
 </div><!-- @end #main-wrapper -->
 
+<script type="text/javascript" src="./vis.js"></script>
 
-<script src="./d3.min.js"></script>
-<script>
+</body>
+</html>
 
-var margin = {top: 20, right: 80, bottom: 30, left: 50},
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
-
-var parseDate = d3.time.format("%Y").parse;
-
-var x = d3.time.scale()
-    .range([0, width]);
-
-var y = d3.scale.linear()
-    .range([height, 0]);
-
-var xAxis = d3.svg.axis()
-    .scale(x)
-    .orient("bottom");
-
-var yAxis = d3.svg.axis()
-    .scale(y)
-    .orient("left");
-
-var line = d3.svg.line()
-    .interpolate("basis")
-    .x(function(d) { return x(d.t); })
-    .y(function(d) { return y(d.value); });
-
-var svg = d3.select("#vis").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-// Load country code to regions data and make it a hash table
-var countries2regions = d3.map();
-d3.csv('country-regions.csv', function(d) {
-  d.forEach(function(dd) {
-    countries2regions.set(dd.CountryCode, dd.RegionCode);    
-  });
-});
-
-var startEnd = {};
-// load timeseries data
-d3.csv("tdata.csv", function(error, data) {
-  id = d3.keys(data[0]).filter(function(key) { return key !== "date"; });
-
-  //format time
-  data.forEach(function(d) {
-    d.date = parseDate(d.date);
-  });
-
-  // create a nested associative array, with country name as key
-  var tSeries = id.map(function(name) {
-    return {
-      name: name,
-      values: data.map(function(d) {
-        return {t: d.date, value: +d[name]};
-      }),
-      region: countries2regions.get(name)
-    };
-  });
-
-  // populate startEnd, a hash table for each country id 
-  tSeries.forEach(function(d,i) {
-    startEnd[d['name']] = { 
-      'startT': tSeries[0]['values'][0]['t'],
-      'endT'  : tSeries[0]['values'][d.values.length-1]['t'],
-      'startVal': d.values[0]['value'],
-      'endVal'  : d.values[d.values.length-1]['value']     
-      };
-    }) 
-
-  x.domain(d3.extent(data, function(d) { return d.date; }));
-
-  y.domain([
-    d3.min(tSeries, function(c) { return d3.min(c.values, function(v) { return v.value; }); }),
-    d3.max(tSeries, function(c) { return d3.max(c.values, function(v) { return v.value; }); })
-  ]);
-
-  svg.append("g")
-      .attr("class", "x axis")
-      .attr("transform", "translate(0," + height + ")")
-      .call(xAxis);
-
-  svg.append("g")
-      .attr("class", "y axis")
-      .call(yAxis);
-
-  var country = svg.selectAll(".country")
-      .data(tSeries)
-      .enter()
-      .append("g");
-
-  country.append("path")
-      .attr("d", function(d) { return line(d.values); })
-      .attr("country", function(d) {return d.name})
-      .attr("class", function(d) {return d.region})
-      .on("mouseover", onmouseover)
-      .on("mouseout", onmouseout);
-
-});
-
-// display default text
-function default_blurb (d,i) {
-    d3.select("#blurb")
-        .html("<h2>World</h2> <p>The average life expectancy in the world in 2011 was 69 years.</p>");
-}
-
-function onmouseover(d, i) {
-    var currClass = d3.select(this).attr("class");
-    d3.select(this)
-        .attr("class", currClass + " current");
-    
-    var id = d3.select(this).attr("country");
-    var countryVals = startEnd[id];
-    var percentChange = 100 * (countryVals['endVal'] - countryVals['startVal']) / countryVals['startVal'];
-    
-    var blurb = '<h2>' + id + '</h2>';
-    blurb += "<p>On average: a life expectancy of " + Math.round(countryVals['startVal']) + " years in " + countryVals['startT'] + 
-      " and " + Math.round(countryVals['endVal']) + " years in " + countryVals['endT'] + ", ";
-    if (percentChange >= 0) {
-        blurb += "an increase of " + Math.round(percentChange) + " %."
-    } else {
-        blurb += "a decrease of " + -1 * Math.round(percentChange) + " %."
-    }
-    blurb += "</p>";
-    
-    d3.select("#blurb")
-        .html(blurb);
-}
-function onmouseout(d, i) {
-    var currClass = d3.select(this).attr("class");
-    var prevClass = currClass.substring(0, currClass.length-8);
-    d3.select(this)
-        .attr("class", prevClass);
-
-    default_blurb();
-}
-
-</script>

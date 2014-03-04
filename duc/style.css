@@ -1,0 +1,64 @@
+body, div, legend {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+    font-family: 'Cardo', serif;
+}
+h1 {
+    font-family: 'Cardo', serif;
+    font-size: 2em;
+    line-height: 1em;
+}
+h2 {
+    font-family: 'Cardo', serif;
+    font-size: 1.5em;
+    text-transform: uppercase;
+}
+p { line-height: 1.2em; margin-bottom: 1.0em; }
+a { color: #821122; }
+
+
+.axis path,
+.axis line {
+    stroke-width: 0.5;
+    stroke: #52525B;
+    shape-rendering: crispEdges;
+}
+.axis text {
+    font-size: 12px;
+}
+
+path {
+    pointer-events: all;
+    stroke: #e2e2e2;
+    stroke-width: 1;
+    fill: none;
+}
+
+path.current, path.highlight.current {
+    stroke: #A5221F;
+    stroke-width: 2.7;
+}
+
+#content {
+    width: 740px;
+    margin: 0 auto;
+}
+#filters {
+    font-family: Arial, sans-serif;
+    margin-right: 3px;
+    background: lightgrey;
+    margin-bottom: 3px;
+    font-size: 11px;
+}
+
+
+#blurb {
+    height:60px;
+    border-top: 1px solid #e2e2e2;
+    padding-top: 5px;
+    line-height: 0.1em;
+}
+
