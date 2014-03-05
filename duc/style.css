@@ -20,8 +20,8 @@ p { line-height: 1.2em; margin-bottom: 1.0em; }
 a { color: #821122; }
 
 
-.axis path,
-.axis line {
+.axis path, .axis line 
+{
     stroke-width: 0.5;
     stroke: #52525B;
     shape-rendering: crispEdges;

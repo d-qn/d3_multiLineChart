@@ -36,15 +36,7 @@ var svg = d3.select("#vis").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-
-
 function showRegion(regionCode) {
-    var countries = d3.selectAll("path." + regionCode);
-    if (countries.classed('highlight')) {
-        countries.attr("class", regionCode);
-    } else {
-        countries.classed('highlight', true);
-    }
     var filters = d3.selectAll("#filters" + " #" + regionCode);
     if (filters.classed('highlight')) {
         filters.attr("class", regionCode);
@@ -52,8 +44,6 @@ function showRegion(regionCode) {
         filters.classed('highlight', true);
     }
 }
-
-
 
 // Load country code to regions data and make it a hash table
 var countries2regions = d3.map();
@@ -84,17 +74,7 @@ d3.csv("life-expectancy_tCleaned.csv", function(error, data) {
     };
   });
 
-  d3.selectAll("#filters a")
-    .on("click", function() {
-      showRegion(this.id);
-      var regionId = this.id;
-
-      var dataset = tSeries.filter(function(d) { return d.region == regionId; });
-  });
-
-
-
-  // populate startEnd, a hash table for each country id 
+ // populate startEnd, a hash table for each country id 
   tSeries.forEach(function(d,i) {
     startEnd[d['name']] = { 
       'startT': parseInt(parseDate(tSeries[0]['values'][0]['t'])),
@@ -104,34 +84,63 @@ d3.csv("life-expectancy_tCleaned.csv", function(error, data) {
       };
     }) 
 
-  x.domain(d3.extent(data, function(d) { return d.date; }));
+  function plotLineChat (dataset, transitionDuration) {
+    x.domain(d3.extent(dataset[0]['values'], function(d) { return d.t;}));
 
-  y.domain([
-    d3.min(tSeries, function(c) { return d3.min(c.values, function(v) { return v.value; }); }),
-    d3.max(tSeries, function(c) { return d3.max(c.values, function(v) { return v.value; }); })
-  ]);
+    y.domain([
+      d3.min(dataset, function(c) { return d3.min(c.values, function(v) { return v.value; }); }),
+      d3.max(dataset, function(c) { return d3.max(c.values, function(v) { return v.value; }); })
+    ]);
 
-  svg.append("g")
-      .attr("class", "axis")
-      .attr("transform", "translate(0," + height + ")")
-      .call(xAxis);
+    // enter mode
+    svg.selectAll("[country]")
+        .data(dataset)
+        .enter()
+        // .append("g"); remove grouping for speed increase?
+        .append("path")
+        .attr("country", function(d) {return d.name});
 
-  svg.append("g")
-      .attr("class", "axis")
-      .call(yAxis);
+   svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")");
 
-  var country = svg.selectAll(".country")
-      .data(tSeries)
-      .enter();
-      // .append("g"); remove grouping for speed increase
+    svg.append("g")
+        .attr("class", "y axis");
 
-  country.append("path")
-      .attr("d", function(d) { return line(d.values); })
-      .attr("country", function(d) {return d.name})
-      .attr("class", function(d) {return d.region})
-      .on("mouseover", onmouseover)
-      .on("mouseout", onmouseout);
+    //update mode
+    svg.selectAll("[country]")
+        .data(dataset)
+        .attr("country", function(d) {return d.name})
+        .attr("d", function(d) { return line(d.values); })
+        .attr("class", function(d) {return d.region})
+        .on("mouseover", onmouseover)
+        .on("mouseout", onmouseout);
 
+    svg.select(".x.axis")
+        .call(xAxis);
+
+    svg.select(".y.axis")
+        .transition()
+        .duration(transitionDuration)
+        .call(yAxis);
+
+    // exit mode
+    svg.selectAll("[country]")
+        .data(dataset)
+        .exit()
+        .remove();
+
+ 
+  }
+  plotLineChat(tSeries, 0)
+
+    d3.selectAll("#filters a")
+      .on("click", function() {
+        showRegion(this.id);
+        var regionId = this.id;
+        var dataset = tSeries.filter(function(d) { return d.region == regionId; });
+        plotLineChat(dataset, 500);
+    });
 
 // display default text
 function default_blurb (d,i) {
