@@ -38,21 +38,34 @@ path {
 }
 
 path.current, path.highlight.current {
-    stroke: #A5221F;
-    stroke-width: 2.7;
+    stroke: #000;
+    stroke-width: 1.7;
 }
+.SAS.highlight,.ECS.highlight,.MEA.highlight,.SSF.highlight,.LCN.highlight,.EAS.highlight,.NAC.highlight 
+{ stroke: #be1932; }
+.highlight { stroke-width: 1px; } 
 
 #content {
     width: 740px;
     margin: 0 auto;
 }
+
 #filters {
     font-family: Arial, sans-serif;
-    margin-right: 3px;
-    background: lightgrey;
-    margin-bottom: 3px;
-    font-size: 11px;
+    margin-bottom: 10px;
 }
+#filters a {
+    color: #000;
+    font-size: 9px;
+    padding: 3px;
+    background: #e2e2e2;
+    cursor: pointer;
+    margin-right: 3px;
+}
+#filters a:last-child {
+    margin-right: 0;
+}
+#filters a.highlight { background: #be1932; color: #fff; }
 
 
 #blurb {
@@ -61,4 +74,7 @@ path.current, path.highlight.current {
     padding-top: 5px;
     line-height: 0.1em;
 }
+
+#cite { font-size: 0.8em; text-align: right; margin-top:10px; padding-bottom: 20px; }
+#cite a { background: #e2e2e2; text-decoration: none; color: #821122; }
 

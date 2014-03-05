@@ -26,7 +26,7 @@ var yAxis = d3.svg.axis()
     .ticks(6);
 
 var line = d3.svg.line()
-    // .interpolate("basis")
+    .interpolate("basis")
     .x(function(d) { return x(d.t); })
     .y(function(d) { return y(d.value); });
 
@@ -35,6 +35,25 @@ var svg = d3.select("#vis").append("svg")
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+
+function showRegion(regionCode) {
+    var countries = d3.selectAll("path." + regionCode);
+    if (countries.classed('highlight')) {
+        countries.attr("class", regionCode);
+    } else {
+        countries.classed('highlight', true);
+    }
+    var filters = d3.selectAll("#filters" + " #" + regionCode);
+    if (filters.classed('highlight')) {
+        filters.attr("class", regionCode);
+    } else {
+        filters.classed('highlight', true);
+    }
+}
+
+
 
 // Load country code to regions data and make it a hash table
 var countries2regions = d3.map();
@@ -46,7 +65,7 @@ d3.csv('country-regions.csv', function(d) {
 
 var startEnd = {};
 // load timeseries data
-d3.csv("tdata.csv", function(error, data) {
+d3.csv("life-expectancy_tCleaned.csv", function(error, data) {
   id = d3.keys(data[0]).filter(function(key) { return key !== "date"; });
 
   //format time
@@ -64,6 +83,16 @@ d3.csv("tdata.csv", function(error, data) {
       region: countries2regions.get(name)
     };
   });
+
+  d3.selectAll("#filters a")
+    .on("click", function() {
+      showRegion(this.id);
+      var regionId = this.id;
+
+      var dataset = tSeries.filter(function(d) { return d.region == regionId; });
+  });
+
+
 
   // populate startEnd, a hash table for each country id 
   tSeries.forEach(function(d,i) {
