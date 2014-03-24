@@ -33,7 +33,7 @@ a { color: #821122; }
 path {
     pointer-events: all;
     stroke: #e2e2e2;
-    stroke-width: 1;
+    stroke-width: 0.5;
     fill: none;
 }
 

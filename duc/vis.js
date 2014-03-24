@@ -33,7 +33,7 @@ var line = d3.svg.line()
 var svg = d3.select("#vis").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
-  .append("g")
+    .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 function showRegion(regionCode) {
@@ -107,6 +107,7 @@ d3.csv("life-expectancy_tCleaned.csv", function(error, data) {
     svg.append("g")
         .attr("class", "y axis");
 
+
     //update mode
     svg.selectAll("[country]")
         .data(dataset)
@@ -115,6 +116,7 @@ d3.csv("life-expectancy_tCleaned.csv", function(error, data) {
         .attr("class", function(d) {return d.region})
         .on("mouseover", onmouseover)
         .on("mouseout", onmouseout);
+
 
     svg.select(".x.axis")
         .call(xAxis);
@@ -128,6 +130,9 @@ d3.csv("life-expectancy_tCleaned.csv", function(error, data) {
     svg.selectAll("[country]")
         .data(dataset)
         .exit()
+        // .transition()
+        // .duration(100)
+        // .style("stroke", "white")
         .remove();
 
  
@@ -138,8 +143,8 @@ d3.csv("life-expectancy_tCleaned.csv", function(error, data) {
       .on("click", function() {
         showRegion(this.id);
         var regionId = this.id;
-        var dataset = tSeries.filter(function(d) { return d.region == regionId; });
-        plotLineChat(dataset, 500);
+
+        plotLineChat(tSeries.filter(function(d) { return d.region == regionId; }), 500);
     });
 
 // display default text
