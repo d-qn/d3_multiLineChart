@@ -1,5 +1,5 @@
 
-var vWidth = 740,
+var vWidth = 640,
   vHeight = 500;
 
 var margin = {top: 20, right: 5, bottom: 30, left: 30},
@@ -36,11 +36,17 @@ var svg = d3.select("#vis").append("svg")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 function showRegion(regionCode) {
-
     var filters = d3.selectAll("#filters" + " #" + regionCode);
-    // if highlighted filters, un-highlight them if filter selected is different than selected filters
+
+    var countries = d3.selectAll("path."+ regionCode);
+    if (countries.classed('highlight')) {
+          countries.attr("class", regionCode);
+    } else {
+          countries.classed('highlight', true);
+    }
+
     var hFilters = d3.selectAll("#filters .highlight");
-    if(hFilters[0].length != 0 && hFilters.attr("id") != filters.attr("id")) {
+    if(hFilters[0].length != 0) {
       hFilters.classed("highlight", false);
     }
 
@@ -48,10 +54,11 @@ function showRegion(regionCode) {
         filters.classed('highlight', false);
     } else {
         filters.classed('highlight', true);
-
-        // var countries = d3.selectAll("path."+regionCode);
-        // countries.classed('highlight', true);
     }
+
+
+
+  
 }
 
 // Load country code to regions data and make it a hash table
@@ -138,7 +145,7 @@ d3.csv("life-expectancy_tCleaned.csv", function(error, data) {
         .data(dataset)
         .exit()
         .transition()
-        .duration(transitionDuration*1.2)
+        .duration(transitionDuration)
         .style("stroke", "white")
         .remove();
 

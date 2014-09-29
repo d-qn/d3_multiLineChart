@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+    <title>Life Expectancy</title>
+    <link rel="stylesheet" type="text/css" href="./style.css" />
+    <script type="text/javascript" src="./d3.min.js"></script> 
+
+
+<body>
+
+<div id="main-wrapper">
+    <div id="content">
+        <h1>Life Expectancy</h1>
+        <p>People are living longer around the world, some more so than others. Select a region below to compare, 
+          or roll over to the graph to highlight countries.</p>
+        
+        <div id="filters">
+            <a id="EAS">East Asia and Pacific</a>
+            <a id="SAS">South Asia</a>
+            <a id="ECS">Europe and Central Asia</a>
+            <a id="MEA">Middle East and North Africa</a>
+            <a id="SSF">Sub-Saharan Africa</a>
+            <a id="LCN">Latin America and Caribbean</a>
+            <a id="NAC">North America</a>
+        </div><!-- @end #filters -->
+
+        <div id="blurb">
+        </div>
+
+        <div id="vis"></div>
+        <div id="cite">Source: The World Bank; Graphic based on : <a href="http://flowingdata.com">Nathan Yau</a> by Duc</div>
+        
+    </div><!-- @end content -->
+</div><!-- @end #main-wrapper -->
+
+<script type="text/javascript" src="./vis.js"></script>
+
+</body>
+</html>
+

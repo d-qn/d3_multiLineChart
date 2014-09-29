@@ -45,7 +45,6 @@ path.current, path.highlight.current {
 { stroke: #be1932; }
 .highlight { stroke-width: 1px; } 
 
-
 #content {
     width: 740px;
     margin: 0 auto;
