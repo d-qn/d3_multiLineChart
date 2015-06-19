@@ -1,13 +1,13 @@
 // 1. Ensure the fluid / responsive design
-// 2. Redrawn scales on window resize
+// 2. Imporve animation
 // 3. select regions
 
 
+var margin = {top: 20, right: 30, bottom: 20, left: 30},
+  heightWidthRatio = 3,
+  offsetWidthMargin = 40;
 
-var margin = {top: 20, right: 50, bottom: 20, left: 25},
-  heightWidthRatio = 3;
-
-var width = document.getElementById('container').offsetWidth - 50;
+var width = document.getElementById('container').offsetWidth - offsetWidthMargin;
 var height = width / heightWidthRatio;
 
 function setup(width,height){
@@ -58,9 +58,6 @@ function showRegion(regionCode) {
         filters.classed('highlight', false);
     } else {
         filters.classed('highlight', true);
-
-        // var countries = d3.selectAll("path."+regionCode);
-        // countries.classed('highlight', true);
     }
 }
 
@@ -105,12 +102,6 @@ d3.csv("life-expectancy_tCleaned.csv", function(error, data) {
 
 
   function plotLineChart (dataset, transitionDuration) {
-    x.domain(d3.extent(dataset[0]['values'], function(d) { return d.t;}));
-
-    y.domain([
-      d3.min(dataset, function(c) { return d3.min(c.values, function(v) { return v.value; }); }),
-      d3.max(dataset, function(c) { return d3.max(c.values, function(v) { return v.value; }); })
-    ]);
 
     // enter mode
     svg.selectAll("[country]")
@@ -156,12 +147,19 @@ d3.csv("life-expectancy_tCleaned.csv", function(error, data) {
  
   }
 
+x.domain(d3.extent(tSeries[0]['values'], function(d) { return d.t;}));
+y.domain([
+  d3.min(tSeries, function(c) { return d3.min(c.values, function(v) { return v.value; }); }),
+  d3.max(tSeries, function(c) { return d3.max(c.values, function(v) { return v.value; }); })
+]);
+
 plotLineChart(tSeries, 0)
 
 d3.selectAll("#filters a")
   .on("click", function() {
     showRegion(this.id);
     var regionId = this.id;
+
     plotLineChart(tSeries, 100);
     var filters = d3.selectAll("#filters .highlight");
       if (filters.classed('highlight')) {
@@ -169,12 +167,18 @@ d3.selectAll("#filters a")
       } 
 });
 
+
+// window resize
 d3.select(window).on("resize", throttle);
 
 var throttleTimer;
 function redraw() {
-  width = document.getElementById('container').offsetWidth - 50;
+  width = document.getElementById('container').offsetWidth - offsetWidthMargin;
   height = width / heightWidthRatio;
+
+  x.range([0, width]);
+  y.range([height, 0]);
+
   d3.select('svg').remove();
   setup(width,height);
   plotLineChart(tSeries,0);
@@ -184,7 +188,7 @@ function throttle() {
   window.clearTimeout(throttleTimer);
     throttleTimer = window.setTimeout(function() {
       redraw();
-    }, 200);
+    }, 100);
 }
 
 // display default text
@@ -217,7 +221,7 @@ function onmouseover(d, i) {
     
     d3.select("#blurb").html(blurb);
 }
-function onmouseout(d, i) {
+function onmouseout(d,i) {
     var currClass = d3.select(this).attr("class");
     var prevClass = currClass.substring(0, currClass.length-8);
     d3.select(this)

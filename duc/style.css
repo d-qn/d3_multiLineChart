@@ -47,9 +47,6 @@ a:visited {
 
 
 
-
-
-
 #container {
     margin:1px 0%;
     height:100%;
@@ -63,7 +60,7 @@ a:visited {
     shape-rendering: crispEdges;
 }
 .axis text {
-    font-size: 12px;
+    font-size: 11px;
 }
 
 path {
