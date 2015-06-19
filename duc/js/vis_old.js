@@ -29,13 +29,6 @@ var line = d3.svg.line()
     .x(function(d) { return x(d.t); })
     .y(function(d) { return y(d.value); });
 
-
-    var width = document.getElementById('container').offsetWidth;
-    var height = width/1.8;
-
-    setup(width,height);
-
-    
 var svg = d3.select("#vis").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
@@ -100,7 +93,7 @@ d3.csv("life-expectancy_tCleaned.csv", function(error, data) {
       };
     }) 
 
-  function plotLineChart (dataset, transitionDuration) {
+  function plotLineChat (dataset, transitionDuration) {
     x.domain(d3.extent(dataset[0]['values'], function(d) { return d.t;}));
 
     y.domain([
@@ -151,40 +144,22 @@ d3.csv("life-expectancy_tCleaned.csv", function(error, data) {
 
  
   }
-
-  plotLineChart(tSeries, 0)
+  plotLineChat(tSeries, 0)
 
     d3.selectAll("#filters a")
       .on("click", function() {
         showRegion(this.id);
         var regionId = this.id;
 
-        plotLineChart(tSeries, 100);
+        plotLineChat(tSeries, 100);
 
         var filters = d3.selectAll("#filters .highlight");
  
           if (filters.classed('highlight')) {
-              plotLineChart(tSeries.filter(function(d) { return d.region == regionId; }), 700);
+              plotLineChat(tSeries.filter(function(d) { return d.region == regionId; }), 700);
           } 
       
     });
-
-    var throttleTimer;
-    function throttle() {
-      window.clearTimeout(throttleTimer);
-        throttleTimer = window.setTimeout(function() {
-          redraw();
-        }, 200);
-    }
-
-    function redraw() {
-      width = document.getElementById('vis').offsetWidth;
-      height = width / 2;
-      d3.select('svg').remove();
-      setup(width,height);
-      plotLineChart(tSeries,0);
-    }
-
 
 // display default text
 function default_blurb (d,i) {

@@ -1,24 +1,60 @@
-body, div, legend {
-  margin: 0;
-  padding: 0;
+body, h1, h2, h3, h4, h5, h6, td {
+   font-family: 'Open Sans', sans-serif;
+   background-color: white;
+   font-size: 12px;
+   margin: 2px;
 }
 
-body {
-    font-family: 'Cardo', serif;
+#cite {
+    font-size: 0.5em; color: #B8B8B8; text-align: right; margin-top:1px; margin-right:3px; padding-bottom: 5px;
 }
+#cite a { text-decoration: none; color: #821122; }
+    
+.descr {
+ font-size: 0.8em; margin-left:1px; color: #707070;
+}
+    
 h1 {
-    font-family: 'Cardo', serif;
-    font-size: 2em;
-    line-height: 1em;
+   font-size:2em;
 }
-h2 {
-    font-family: 'Cardo', serif;
-    font-size: 1.5em;
-    text-transform: uppercase;
-}
-p { line-height: 1.2em; margin-bottom: 1.0em; }
-a { color: #821122; }
 
+h2 {
+   font-size:1.5em;
+   font-weight: lighter;
+   line-height: 115%;
+}
+
+h3 {
+   font-size:1.2em
+}
+
+h4 {
+   font-size:1.1em;
+}
+
+h5 {
+   font-size:0.9em;
+}
+
+h6 {
+   font-size:0.8em;
+}
+    
+
+a:visited {
+   color: rgb(50%, 0%, 50%);
+}
+
+
+
+
+
+
+#container {
+    margin:1px 0%;
+    height:100%;
+    overflow:hidden;
+}
 
 .axis path, .axis line 
 {
@@ -45,11 +81,6 @@ path.current, path.highlight.current {
 { stroke: #be1932; }
 .highlight { stroke-width: 1px; } 
 
-
-#content {
-    width: 740px;
-    margin: 0 auto;
-}
 
 #filters {
     font-family: Arial, sans-serif;
