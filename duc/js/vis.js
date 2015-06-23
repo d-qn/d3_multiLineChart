@@ -1,10 +1,12 @@
+// Do not replot line chart but simply mask lines with CSS
 // 1. Ensure the fluid / responsive design
+// WTF with the nesting of functions d3.csv ?? plotLineChart
 // 2. Imporve animation
+// 3. on window resize remove filter regions or reset filters
 // 3. select regions
 
-
 var margin = {top: 20, right: 30, bottom: 20, left: 30},
-  heightWidthRatio = 3,
+  heightWidthRatio = 2.5,
   offsetWidthMargin = 40;
 
 var width = document.getElementById('container').offsetWidth - offsetWidthMargin;
@@ -45,31 +47,83 @@ var line = d3.svg.line()
     .y(function(d) { return y(d.value); });
 
 
-function showRegion(regionCode) {
+// function showRegion(regionCode) {
 
-    var filters = d3.selectAll("#filters" + " #" + regionCode);
-    // if highlighted filters, un-highlight them if filter selected is different than selected filters
-    var hFilters = d3.selectAll("#filters .highlight");
-    if(hFilters[0].length != 0 && hFilters.attr("id") != filters.attr("id")) {
-      hFilters.classed("highlight", false);
-    }
+//     var filters = d3.selectAll("#filters" + " #" + regionCode);
+//     // if highlighted filters, un-highlight them if filter selected is different than selected filters
+//     var hFilters = d3.selectAll("#filters .highlight");
+//     if(hFilters[0].length != 0 && hFilters.attr("id") != filters.attr("id")) {
+//       hFilters.classed("highlight", false);
+//     }
 
-    if (filters.classed('highlight')) {
-        filters.classed('highlight', false);
-    } else {
-        filters.classed('highlight', true);
-    }
-}
+//     if (filters.classed('highlight')) {
+//         filters.classed('highlight', false);
+//     } else {
+//         filters.classed('highlight', true);
+//     }
+// } // showRegion end
 
-// Load country code to regions data and make it a hash table
+
+// Load country code to regions data and make it a hash table / object
 var countries2regions = d3.map();
-d3.csv('country-regions.csv', function(d) {
+d3.csv('country-regions.csv', function(error, d) {
   d.forEach(function(dd) {
     countries2regions.set(dd.CountryCode, dd.RegionCode);    
   });
 });
 
 var startEnd = {};
+// display default top text
+function default_blurb (d,i) {
+
+    d3.select("#blurb")
+        .html("<h2>World</h2> <p>The average life expectancy in the world in " + startEnd[d3.keys(startEnd)[0]]['endT'] + 
+        " was 69 years.</p>");
+}
+
+
+function plotLineChart (dataset) {
+  // enter mode
+  svg.selectAll("[country]")
+      .data(dataset)
+      .enter()
+      // .append("g"); remove grouping for speed increase?
+      .append("path")
+      .attr("country", function(d) {return d.name});
+
+ svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")");
+
+  svg.append("g")
+      .attr("class", "y axis");
+
+  //update mode
+  svg.selectAll("[country]")
+      .data(dataset)
+      .attr("country", function(d) {return d.name})
+      .attr("d", function(d) { return line(d.values); })
+      .attr("class", function(d) {return d.region})
+      .on("mouseover", onmouseover)
+      .on("mouseout", onmouseout);
+
+  svg.select(".x.axis")
+      .call(xAxis);
+
+  svg.select(".y.axis")
+      .call(yAxis);
+
+  // exit mode
+  svg.selectAll("[country]")
+      .data(dataset)
+      .exit()
+      .style("stroke", "white")
+      .remove();
+
+
+} // function plotLineChart
+
+var tSeries;
 // load timeseries data
 d3.csv("life-expectancy_tCleaned.csv", function(error, data) {
   id = d3.keys(data[0]).filter(function(key) { return key !== "date"; });
@@ -80,7 +134,7 @@ d3.csv("life-expectancy_tCleaned.csv", function(error, data) {
   });
 
   // create a nested associative array, with country name as key
-  var tSeries = id.map(function(name) {
+  tSeries = id.map(function(name) {
     return {
       name: name,
       values: data.map(function(d) {
@@ -100,72 +154,63 @@ d3.csv("life-expectancy_tCleaned.csv", function(error, data) {
       };
     }) 
 
+  default_blurb();
 
-  function plotLineChart (dataset, transitionDuration) {
+  x.domain(d3.extent(tSeries[0]['values'], function(d) { return d.t;}));
+  y.domain([
+    d3.min(tSeries, function(c) { return d3.min(c.values, function(v) { return v.value; }); }),
+    d3.max(tSeries, function(c) { return d3.max(c.values, function(v) { return v.value; }); })
+  ]);
 
-    // enter mode
-    svg.selectAll("[country]")
-        .data(dataset)
-        .enter()
-        // .append("g"); remove grouping for speed increase?
-        .append("path")
-        .attr("country", function(d) {return d.name});
+  plotLineChart(tSeries, 500)
 
-   svg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")");
+  // d3.selectAll("#filters a")
+  //   .on("click", function() {
+  //     showRegion(this.id);
+  //     var regionId = this.id;
 
-    svg.append("g")
-        .attr("class", "y axis");
+  //     plotLineChart(tSeries, 100);
+  //     var filters = d3.selectAll("#filters .highlight");
+  //       if (filters.classed('highlight')) {
+  //           plotLineChart(tSeries.filter(function(d) { return d.region == regionId; }), 700);
+  //       } 
+  // });
 
-    //update mode
-    svg.selectAll("[country]")
-        .data(dataset)
-        .attr("country", function(d) {return d.name})
-        .attr("d", function(d) { return line(d.values); })
-        .attr("class", function(d) {return d.region})
-        .on("mouseover", onmouseover)
-        .on("mouseout", onmouseout);
+}); // End d3.csv !!!!!!
 
-    svg.select(".x.axis")
-        .call(xAxis);
 
-    svg.select(".y.axis")
-        .transition()
-        .duration(transitionDuration)
-        .call(yAxis);
 
-    // exit mode
-    svg.selectAll("[country]")
-        .data(dataset)
-        .exit()
-        .transition()
-        .duration(transitionDuration*1.2)
-        .style("stroke", "white")
-        .remove();
+function onclick(d, i) {
+    var currClass = d3.select(this).attr("class");
+    if (d3.select(this).classed('selected')) {
+        d3.select(this).attr("class", currClass.substring(0, currClass.length-9));
+    } else {
+        d3.select(this).classed('selected', true);
+    }
+}
 
- 
-  }
 
-x.domain(d3.extent(tSeries[0]['values'], function(d) { return d.t;}));
-y.domain([
-  d3.min(tSeries, function(c) { return d3.min(c.values, function(v) { return v.value; }); }),
-  d3.max(tSeries, function(c) { return d3.max(c.values, function(v) { return v.value; }); })
-]);
+function showRegion(regionCode) {
+    var countries = d3.selectAll("path."+regionCode);
+    if (countries.classed('highlight')) {
+        countries.attr("class", regionCode);
+    } else {
+        countries.classed('highlight', true);
+    }
+}
 
-plotLineChart(tSeries, 0)
 
-d3.selectAll("#filters a")
-  .on("click", function() {
-    showRegion(this.id);
-    var regionId = this.id;
-
-    plotLineChart(tSeries, 100);
-    var filters = d3.selectAll("#filters .highlight");
-      if (filters.classed('highlight')) {
-          plotLineChart(tSeries.filter(function(d) { return d.region == regionId; }), 700);
-      } 
+$(document).ready(function() {
+    $('#filters a').click(function() {
+        var countryId = $(this).attr("id");
+        $(this).toggleClass(countryId);
+        showRegion(countryId);
+    });
+    
 });
+
+
+
 
 
 // window resize
@@ -188,17 +233,8 @@ function throttle() {
   window.clearTimeout(throttleTimer);
     throttleTimer = window.setTimeout(function() {
       redraw();
-    }, 100);
+    }, 300);
 }
-
-// display default text
-function default_blurb (d,i) {
-
-    d3.select("#blurb")
-        .html("<h2>World</h2> <p>The average life expectancy in the world in " + startEnd[d3.keys(startEnd)[0]]['endT'] + 
-        " was 69 years.</p>");
-}
-default_blurb();
 
 function onmouseover(d, i) {
     var currClass = d3.select(this).attr("class");
@@ -228,8 +264,5 @@ function onmouseout(d,i) {
         .attr("class", prevClass);
     default_blurb();
 }
-
-}); // End d3.csv
-
 
 

@@ -6,7 +6,7 @@ body, h1, h2, h3, h4, h5, h6, td {
 }
 
 #cite {
-    font-size: 0.5em; color: #B8B8B8; text-align: right; margin-top:1px; margin-right:3px; padding-bottom: 5px;
+    font-size: 0.6em; color: #B8B8B8; text-align: right; margin-top:1px; margin-right:10px; padding-bottom: 5px;
 }
 #cite a { text-decoration: none; color: #821122; }
     
@@ -66,44 +66,42 @@ a:visited {
 path {
     pointer-events: all;
     stroke: #e2e2e2;
-    stroke-width: 0.5;
+    stroke-width: 0.4;
     fill: none;
 }
 
 path.current, path.highlight.current {
-    stroke: #000;
-    stroke-width: 1.7;
+    stroke: #171717;
+    stroke-width: 1.5;
 }
+
 .SAS.highlight,.ECS.highlight,.MEA.highlight,.SSF.highlight,.LCN.highlight,.EAS.highlight,.NAC.highlight 
 { stroke: #be1932; }
 .highlight { stroke-width: 1px; } 
 
 
 #filters {
-    font-family: Arial, sans-serif;
-    margin-bottom: 10px;
+    font-family: 'Open Sans', sans-serif;
+    margin-bottom: 7px;
 }
 #filters a {
+    line-height: 2.2;
     color: #000;
-    font-size: 9px;
-    padding: 3px;
+    font-size: 10px;
+    padding: 2px;
     background: #e2e2e2;
     cursor: pointer;
-    margin-right: 3px;
+    margin-right: 5px;
 }
 #filters a:last-child {
     margin-right: 0;
 }
 #filters a.highlight { background: #be1932; color: #fff; }
 
-
 #blurb {
-    height:60px;
+    height:50px;
     border-top: 1px solid #e2e2e2;
     padding-top: 5px;
     line-height: 0.1em;
 }
-
-#cite { font-size: 0.8em; text-align: right; margin-top:10px; padding-bottom: 20px; }
-#cite a { background: #e2e2e2; text-decoration: none; color: #821122; }
 

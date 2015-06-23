@@ -118,15 +118,6 @@ vis.selectAll(".yTicks")
     .attr("y2", function(d) { return y(d); })
     .attr("x2", x(startYear))
 
-function onclick(d, i) {
-    var currClass = d3.select(this).attr("class");
-    if (d3.select(this).classed('selected')) {
-        d3.select(this).attr("class", currClass.substring(0, currClass.length-9));
-    } else {
-        d3.select(this).classed('selected', true);
-    }
-}
-
 function onmouseover(d, i) {
     var currClass = d3.select(this).attr("class");
     d3.select(this)
@@ -157,6 +148,16 @@ function onmouseout(d, i) {
     $("#default-blurb").show();
     $("#blurb-content").html('');
 }
+
+function onclick(d, i) {
+    var currClass = d3.select(this).attr("class");
+    if (d3.select(this).classed('selected')) {
+        d3.select(this).attr("class", currClass.substring(0, currClass.length-9));
+    } else {
+        d3.select(this).classed('selected', true);
+    }
+}
+
 
 function showRegion(regionCode) {
     var countries = d3.selectAll("path."+regionCode);
